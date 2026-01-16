@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MangaRate • Notation Multi-Critères</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root { --bg-dark: #0a0a0c; --bg-card: #14141a; --bg-hover: #1a1a22; --accent: #ff6b4a; --accent-glow: rgba(255, 107, 74, 0.3); --text: #f5f5f5; --text-dim: #888; --border: #2a2a35; --success: #4ade80; --manga: #ff6b4a; --anime: #6366f1; --anilist: #02a9ff; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--bg-dark); color: var(--text); min-height: 100vh; }
+    body::before { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E"); opacity: 0.03; pointer-events: none; z-index: 1000; }
+    .container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+    header { display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 0; margin-bottom: 2rem; border-bottom: 1px solid var(--border); flex-wrap: wrap; gap: 1rem; }
+    .logo { font-family: 'Bebas Neue', sans-serif; font-size: 2.5rem; letter-spacing: 0.1em; display: flex; align-items: center; gap: 0.5rem; }
+    .logo span { color: var(--accent); }
+    .logo-icon { width: 40px; height: 40px; background: linear-gradient(135deg, var(--accent) 0%, #ff8a6b 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; transform: rotate(-5deg); }
+    .header-actions { display: flex; align-items: center; gap: 0.75rem; }
+    .auth-section { display: flex; align-items: center; gap: 1rem; }
+    .icon-btn { background: var(--bg-card); border: 1px solid var(--border); color: var(--text-dim); width: 42px; height: 42px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; transition: all 0.2s; }
+    .icon-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .auth-btn { background: linear-gradient(135deg, #02a9ff 0%, #0284c7 100%); border: none; color: white; padding: 0.8rem 1.8rem; font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 0.95rem; border-radius: 10px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 0.5rem; }
+    .auth-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(2, 169, 255, 0.3); }
+    .auth-btn.logout { background: transparent; border: 2px solid var(--border); color: var(--text-dim); padding: 0.6rem 1.2rem; }
+    .auth-btn.logout:hover { border-color: #ef4444; color: #ef4444; }
+    .user-info { display: flex; align-items: center; gap: 0.75rem; padding: 0.5rem 1rem; background: var(--bg-card); border-radius: 50px; border: 1px solid var(--border); }
+    .user-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
+    .user-name { font-weight: 600; font-size: 0.9rem; }
+    .login-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 60vh; text-align: center; }
+    .login-icon { font-size: 5rem; margin-bottom: 2rem; }
+    .login-title { font-family: 'Bebas Neue', sans-serif; font-size: 3rem; letter-spacing: 0.1em; margin-bottom: 1rem; }
+    .login-subtitle { color: var(--text-dim); font-size: 1.1rem; margin-bottom: 2rem; max-width: 500px; }
+    .login-btn { background: linear-gradient(135deg, #02a9ff 0%, #0284c7 100%); border: none; color: white; padding: 1rem 2.5rem; font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 1.1rem; border-radius: 12px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 0.75rem; }
+    .login-btn:hover { transform: translateY(-3px); box-shadow: 0 15px 40px rgba(2, 169, 255, 0.4); }
+    .app-content { display: none; }
+    .app-content.active { display: block; }
+    .filter-section { background: var(--bg-card); border-radius: 20px; padding: 1.5rem 2rem; margin-bottom: 2rem; border: 1px solid var(--border); }
+    .filter-row { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap; }
+    .filter-row:last-child { margin-bottom: 0; }
+    .filter-label { font-family: 'Bebas Neue', sans-serif; font-size: 0.9rem; letter-spacing: 0.15em; color: var(--text-dim); min-width: 80px; }
+    .filter-chips { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .filter-chip { padding: 0.5rem 1rem; background: var(--bg-dark); border: 1px solid var(--border); border-radius: 8px; color: var(--text-dim); font-size: 0.85rem; font-family: 'DM Sans', sans-serif; cursor: pointer; transition: all 0.2s ease; user-select: none; }
+    .filter-chip:hover { border-color: var(--text-dim); color: var(--text); }
+    .filter-chip.active { background: var(--accent); border-color: var(--accent); color: var(--bg-dark); font-weight: 600; }
+    .filter-chip.manga.active { background: var(--manga); border-color: var(--manga); }
+    .filter-chip.anime.active { background: var(--anime); border-color: var(--anime); }
+    .filter-chip.completed.active { background: var(--success); border-color: var(--success); }
+    .filter-chip.current.active { background: #3b82f6; border-color: #3b82f6; }
+    .filter-chip.paused.active { background: #f59e0b; border-color: #f59e0b; }
+    .filter-chip.dropped.active { background: #ef4444; border-color: #ef4444; }
+    .filter-chip.planning.active { background: #8b5cf6; border-color: #8b5cf6; }
+    .filter-chip.repeating.active { background: #ec4899; border-color: #ec4899; }
+    .filter-divider { width: 1px; height: 30px; background: var(--border); margin: 0 0.5rem; }
+    .filter-search { flex: 1; min-width: 200px; padding: 0.6rem 1rem; background: var(--bg-dark); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 0.9rem; font-family: 'DM Sans', sans-serif; }
+    .filter-search:focus { outline: none; border-color: var(--accent); }
+    .filter-search::placeholder { color: var(--text-dim); }
+    .filter-reset { padding: 0.5rem 1rem; background: transparent; border: 1px solid var(--border); border-radius: 8px; color: var(--text-dim); font-size: 0.85rem; cursor: pointer; }
+    .filter-reset:hover { border-color: #ef4444; color: #ef4444; }
+    .results-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; padding: 0 0.5rem; }
+    .results-count { color: var(--text-dim); font-size: 0.9rem; }
+    .results-count strong { color: var(--accent); font-family: 'Bebas Neue', sans-serif; font-size: 1.2rem; }
+    .sort-select { padding: 0.5rem 1rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 0.85rem; cursor: pointer; }
+    .stats-bar { display: flex; gap: 1.5rem; margin-bottom: 2rem; padding: 1.2rem 1.5rem; background: var(--bg-card); border-radius: 15px; border: 1px solid var(--border); flex-wrap: wrap; }
+    .stat-item { text-align: center; min-width: 60px; }
+    .stat-value { font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; color: var(--accent); }
+    .stat-label { font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; }
+    .media-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1.25rem; margin-bottom: 3rem; }
+    .media-card { background: var(--bg-card); border-radius: 12px; overflow: hidden; border: 1px solid var(--border); cursor: pointer; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; }
+    .media-card:hover { transform: translateY(-6px) scale(1.02); border-color: var(--accent); box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4); }
+    .media-card.rated { border-color: var(--success); }
+    .media-card.rated::after { content: '✓'; position: absolute; top: 8px; right: 8px; width: 26px; height: 26px; background: var(--success); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; color: var(--bg-dark); font-weight: 700; z-index: 10; }
+    .media-type-badge { position: absolute; top: 8px; left: 8px; padding: 0.25rem 0.5rem; background: rgba(0,0,0,0.7); backdrop-filter: blur(5px); border-radius: 5px; font-size: 0.65rem; font-weight: 600; text-transform: uppercase; z-index: 10; }
+    .media-type-badge.manga { color: var(--manga); }
+    .media-type-badge.anime { color: var(--anime); }
+    .media-anilist-score { position: absolute; top: 8px; right: 8px; padding: 0.2rem 0.5rem; background: rgba(2, 169, 255, 0.9); border-radius: 5px; font-size: 0.7rem; font-weight: 700; color: white; z-index: 5; }
+    .media-card.rated .media-anilist-score { top: 40px; }
+    .media-cover { width: 100%; aspect-ratio: 2/3; object-fit: cover; }
+    .media-info { padding: 0.85rem; }
+    .media-title { font-weight: 600; font-size: 0.85rem; margin-bottom: 0.4rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.3; }
+    .media-meta { display: flex; justify-content: space-between; align-items: center; }
+    .media-status { font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase; }
+    .media-score { font-family: 'Bebas Neue', sans-serif; font-size: 1.2rem; color: var(--accent); }
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); display: none; align-items: center; justify-content: center; z-index: 100; padding: 2rem; }
+    .modal-overlay.active { display: flex; }
+    .modal { background: var(--bg-card); border-radius: 20px; max-width: 700px; width: 100%; max-height: 90vh; overflow-y: auto; border: 1px solid var(--border); position: relative; animation: modalSlide 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    @keyframes modalSlide { from { opacity: 0; transform: translateY(20px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+    .modal-header { display: flex; gap: 1.25rem; padding: 1.5rem; border-bottom: 1px solid var(--border); }
+    .modal-cover { width: 100px; height: 150px; object-fit: cover; border-radius: 10px; flex-shrink: 0; }
+    .modal-title-section { flex: 1; min-width: 0; }
+    .modal-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.6rem; margin-bottom: 0.3rem; line-height: 1.1; }
+    .modal-subtitle { color: var(--text-dim); font-size: 0.85rem; margin-bottom: 0.75rem; }
+    .modal-badges { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .modal-badge { font-size: 0.7rem; padding: 0.25rem 0.6rem; background: var(--bg-dark); border-radius: 5px; color: var(--text-dim); }
+    .modal-badge.type { color: var(--manga); }
+    .modal-badge.type.anime { color: var(--anime); }
+    .modal-badge.anilist { background: var(--anilist); color: white; }
+    .modal-close { position: absolute; top: 1rem; right: 1rem; width: 36px; height: 36px; background: var(--bg-dark); border: none; border-radius: 50%; color: var(--text); font-size: 1.3rem; cursor: pointer; transition: all 0.3s ease; }
+    .modal-close:hover { background: var(--accent); color: var(--bg-dark); transform: rotate(90deg); }
+    .modal-body { padding: 1.5rem; }
+    .criteria-title { font-family: 'Bebas Neue', sans-serif; font-size: 1rem; letter-spacing: 0.15em; color: var(--text-dim); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+    .criteria-title small { font-family: 'DM Sans', sans-serif; font-size: 0.7rem; color: var(--text-dim); font-weight: normal; letter-spacing: 0; }
+    .anilist-base-score { background: var(--bg-dark); border-radius: 12px; padding: 1rem; margin-bottom: 1.25rem; display: flex; align-items: center; justify-content: space-between; }
+    .anilist-base-label { font-size: 0.85rem; color: var(--text-dim); display: flex; align-items: center; gap: 0.5rem; }
+    .anilist-base-value { font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; color: var(--anilist); }
+    .criteria-item { margin-bottom: 1rem; }
+    .criteria-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
+    .criteria-name { font-weight: 500; font-size: 0.85rem; display: flex; align-items: center; gap: 0.5rem; }
+    .criteria-coef { font-size: 0.7rem; color: var(--text-dim); background: var(--bg-dark); padding: 0.15rem 0.4rem; border-radius: 4px; }
+    .criteria-value { font-family: 'Bebas Neue', sans-serif; font-size: 1.3rem; color: var(--accent); min-width: 35px; text-align: right; }
+    .criteria-slider { -webkit-appearance: none; width: 100%; height: 6px; background: var(--bg-dark); border-radius: 10px; outline: none; cursor: pointer; }
+    .criteria-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; background: linear-gradient(135deg, var(--accent) 0%, #ff8a6b 100%); border-radius: 50%; cursor: pointer; box-shadow: 0 3px 10px var(--accent-glow); }
+    .final-score { text-align: center; padding: 1.25rem; background: var(--bg-dark); border-radius: 15px; margin-bottom: 1rem; }
+    .final-score-label { font-family: 'Bebas Neue', sans-serif; font-size: 0.8rem; letter-spacing: 0.2em; color: var(--text-dim); margin-bottom: 0.2rem; }
+    .final-score-value { font-family: 'Bebas Neue', sans-serif; font-size: 3.5rem; background: linear-gradient(135deg, var(--accent) 0%, #ff8a6b 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1; }
+    .final-score-max { font-size: 1rem; color: var(--text-dim); }
+    .modal-shortcuts { font-size: 0.75rem; color: var(--text-dim); text-align: center; margin-bottom: 1rem; }
+    .modal-shortcuts kbd { background: var(--bg-dark); padding: 0.2rem 0.5rem; border-radius: 4px; font-family: monospace; margin: 0 0.1rem; }
+    .modal-actions { display: flex; gap: 0.75rem; }
+    .action-btn { flex: 1; padding: 0.85rem; border-radius: 10px; font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
+    .action-btn.save { background: linear-gradient(135deg, var(--accent) 0%, #ff8a6b 100%); border: none; color: var(--bg-dark); }
+    .action-btn.save:hover { transform: translateY(-2px); box-shadow: 0 12px 30px var(--accent-glow); }
+    .action-btn.sync { background: transparent; border: 2px solid var(--anilist); color: var(--anilist); }
+    .action-btn.sync:hover { background: var(--anilist); color: white; }
+    .action-btn.next { background: transparent; border: 2px solid var(--success); color: var(--success); }
+    .action-btn.next:hover { background: var(--success); color: var(--bg-dark); }
+    .ratings-section { margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border); }
+    .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }
+    .section-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; letter-spacing: 0.1em; }
+    .section-actions { display: flex; gap: 0.75rem; }
+    .export-btn { padding: 0.6rem 1.2rem; background: transparent; border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 0.85rem; cursor: pointer; }
+    .export-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .ratings-table { width: 100%; border-collapse: collapse; }
+    .ratings-table th, .ratings-table td { padding: 0.75rem; text-align: left; border-bottom: 1px solid var(--border); }
+    .ratings-table th { font-family: 'Bebas Neue', sans-serif; font-size: 0.75rem; color: var(--text-dim); font-weight: normal; }
+    .ratings-table tbody tr:hover { background: var(--bg-hover); }
+    .rating-row-title { display: flex; align-items: center; gap: 0.75rem; }
+    .rating-row-cover { width: 32px; height: 48px; object-fit: cover; border-radius: 4px; }
+    .rating-cell-score { font-family: 'Bebas Neue', sans-serif; font-size: 1.1rem; color: var(--accent); }
+    .rating-actions { display: flex; gap: 0.25rem; }
+    .rating-action-btn { background: none; border: none; color: var(--text-dim); cursor: pointer; padding: 0.35rem; border-radius: 5px; font-size: 0.85rem; }
+    .rating-action-btn:hover { background: var(--bg-dark); }
+    .rating-action-btn.anilist:hover { color: var(--anilist); }
+    .rating-action-btn.delete:hover { color: #ef4444; }
+    .empty-state { text-align: center; padding: 4rem 2rem; color: var(--text-dim); grid-column: 1 / -1; }
+    .empty-state-icon { font-size: 4rem; margin-bottom: 1rem; opacity: 0.3; }
+    .loading { display: flex; align-items: center; justify-content: center; padding: 3rem; grid-column: 1 / -1; }
+    .spinner { width: 40px; height: 40px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .toast-container { position: fixed; bottom: 2rem; right: 2rem; z-index: 200; }
+    .toast { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 0.85rem 1.25rem; margin-top: 0.5rem; display: flex; align-items: center; gap: 0.6rem; animation: toastSlide 0.35s ease; box-shadow: 0 10px 40px rgba(0,0,0,0.3); font-size: 0.9rem; }
+    @keyframes toastSlide { from { opacity: 0; transform: translateX(100%); } to { opacity: 1; transform: translateX(0); } }
+    .toast.success { border-color: var(--success); }
+    .toast.success::before { content: '✓'; color: var(--success); font-weight: bold; }
+    .toast.error { border-color: #ef4444; }
+    .toast.error::before { content: '✕'; color: #ef4444; font-weight: bold; }
+    /* Settings Modal */
+    .settings-modal { max-width: 800px; }
+    .settings-tabs { display: flex; border-bottom: 1px solid var(--border); }
+    .settings-tab { flex: 1; padding: 1rem; background: none; border: none; color: var(--text-dim); font-family: 'Bebas Neue', sans-serif; font-size: 1rem; letter-spacing: 0.1em; cursor: pointer; transition: all 0.2s; border-bottom: 2px solid transparent; }
+    .settings-tab:hover { color: var(--text); }
+    .settings-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+    .settings-tab.manga.active { color: var(--manga); border-bottom-color: var(--manga); }
+    .settings-tab.anime.active { color: var(--anime); border-bottom-color: var(--anime); }
+    .settings-content { padding: 1.5rem; }
+    .settings-panel { display: none; }
+    .settings-panel.active { display: block; }
+    .criteria-config { background: var(--bg-dark); border-radius: 12px; padding: 1rem; margin-bottom: 1rem; }
+    .criteria-config-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 0.75rem; }
+    .criteria-config-header input { flex: 1; background: var(--bg-card); border: 1px solid var(--border); border-radius: 6px; padding: 0.5rem; color: var(--text); font-size: 0.9rem; }
+    .criteria-config-header input:focus { outline: none; border-color: var(--accent); }
+    .criteria-config-coef { display: flex; align-items: center; gap: 0.5rem; }
+    .criteria-config-coef label { font-size: 0.8rem; color: var(--text-dim); }
+    .criteria-config-coef input { width: 60px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 6px; padding: 0.4rem; color: var(--text); font-size: 0.9rem; text-align: center; }
+    .criteria-config-delete { background: none; border: none; color: var(--text-dim); cursor: pointer; padding: 0.5rem; border-radius: 6px; }
+    .criteria-config-delete:hover { color: #ef4444; background: rgba(239, 68, 68, 0.1); }
+    .add-criteria-btn { width: 100%; padding: 0.75rem; background: var(--bg-dark); border: 2px dashed var(--border); border-radius: 12px; color: var(--text-dim); font-size: 0.9rem; cursor: pointer; transition: all 0.2s; }
+    .add-criteria-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .settings-actions { display: flex; gap: 0.75rem; margin-top: 1.5rem; }
+    .anilist-coef-section { background: var(--bg-dark); border-radius: 12px; padding: 1rem; margin-bottom: 1.5rem; }
+    .anilist-coef-header { display: flex; align-items: center; justify-content: space-between; }
+    .anilist-coef-header label { font-size: 0.9rem; display: flex; align-items: center; gap: 0.5rem; }
+    .anilist-coef-header input { width: 70px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 6px; padding: 0.4rem; color: var(--text); font-size: 0.9rem; text-align: center; }
+    @media (max-width: 768px) { .container { padding: 1rem; } header { flex-direction: column; } .filter-section { padding: 1rem; } .filter-row { flex-direction: column; align-items: flex-start; } .filter-divider { display: none; } .filter-search { width: 100%; } .media-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); } .modal-header { flex-direction: column; align-items: center; text-align: center; } .modal-actions { flex-direction: column; } .ratings-table th:nth-child(n+3), .ratings-table td:nth-child(n+3) { display: none; } }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="logo"><div class="logo-icon">📊</div>MANGA<span>RATE</span></div>
+      <div class="header-actions">
+        <button class="icon-btn" onclick="openSettings()" title="Paramètres">⚙️</button>
+        <div class="auth-section" id="authSection">
+          <button class="auth-btn" onclick="handleAuth()">Connexion AniList</button>
+        </div>
+      </div>
+    </header>
+    <div class="login-screen" id="loginScreen">
+      <div class="login-icon">🎌</div>
+      <h1 class="login-title">BIENVENUE SUR MANGA<span style="color: var(--accent)">RATE</span></h1>
+      <p class="login-subtitle">Connecte-toi avec ton compte AniList pour noter tes mangas et animes avec des critères personnalisables.</p>
+      <button class="login-btn" onclick="handleAuth()">Se connecter avec AniList</button>
+    </div>
+    <div class="app-content" id="appContent">
+      <section class="filter-section">
+        <div class="filter-row">
+          <span class="filter-label">TYPE</span>
+          <div class="filter-chips" id="typeFilters">
+            <div class="filter-chip manga active" data-type="MANGA">Manga</div>
+            <div class="filter-chip anime active" data-type="ANIME">Anime</div>
+          </div>
+          <div class="filter-divider"></div>
+          <span class="filter-label">STATUT</span>
+          <div class="filter-chips" id="statusFilters">
+            <div class="filter-chip completed active" data-status="COMPLETED">Terminé</div>
+            <div class="filter-chip current active" data-status="CURRENT">En cours</div>
+            <div class="filter-chip paused" data-status="PAUSED">En pause</div>
+            <div class="filter-chip dropped" data-status="DROPPED">Abandonné</div>
+            <div class="filter-chip planning" data-status="PLANNING">Prévu</div>
+            <div class="filter-chip repeating active" data-status="REPEATING">Relecture</div>
+          </div>
+        </div>
+        <div class="filter-row">
+          <span class="filter-label">NOTATION</span>
+          <div class="filter-chips" id="ratedFilters">
+            <div class="filter-chip active" data-rated="all">Tous</div>
+            <div class="filter-chip" data-rated="rated">Notés</div>
+            <div class="filter-chip" data-rated="unrated">Non notés</div>
+          </div>
+          <div class="filter-divider"></div>
+          <input type="text" class="filter-search" id="searchInput" placeholder="🔍 Rechercher...">
+          <button class="filter-reset" onclick="resetFilters()">Reset</button>
+        </div>
+      </section>
+      <div class="stats-bar">
+        <div class="stat-item"><div class="stat-value" id="statTotal">0</div><div class="stat-label">Total</div></div>
+        <div class="stat-item"><div class="stat-value" id="statFiltered">0</div><div class="stat-label">Affichés</div></div>
+        <div class="stat-item"><div class="stat-value" id="statRated">0</div><div class="stat-label">Notés</div></div>
+        <div class="stat-item"><div class="stat-value" id="statAvg">-</div><div class="stat-label">Moyenne</div></div>
+      </div>
+      <div class="results-info">
+        <div class="results-count"><strong id="resultsCount">0</strong> résultats</div>
+        <select class="sort-select" id="sortSelect"><option value="title">Titre</option><option value="score-desc">Note ↓</option><option value="score-asc">Note ↑</option><option value="anilist-desc">AniList ↓</option><option value="recent">Récent</option></select>
+      </div>
+      <div class="media-grid" id="mediaGrid"></div>
+      <section class="ratings-section" id="ratingsSection" style="display:none;">
+        <div class="section-header">
+          <h2 class="section-title">MES NOTATIONS</h2>
+          <div class="section-actions"><button class="export-btn" onclick="exportRatings()">📥 Export</button><button class="export-btn" onclick="importRatings()">📤 Import</button></div>
+        </div>
+        <table class="ratings-table"><thead><tr><th>TITRE</th><th>TYPE</th><th>ANILIST</th><th>NOTE</th><th></th></tr></thead><tbody id="ratingsBody"></tbody></table>
+      </section>
+    </div>
+  </div>
+
+  <!-- Rating Modal -->
+  <div class="modal-overlay" id="ratingModal">
+    <div class="modal">
+      <button class="modal-close" onclick="closeModal()">×</button>
+      <div class="modal-header">
+        <img class="modal-cover" id="modalCover" src="" alt="">
+        <div class="modal-title-section">
+          <h2 class="modal-title" id="modalTitle"></h2>
+          <div class="modal-subtitle" id="modalSubtitle"></div>
+          <div class="modal-badges">
+            <span class="modal-badge type" id="modalType"></span>
+            <span class="modal-badge" id="modalFormat"></span>
+            <span class="modal-badge" id="modalStatus"></span>
+            <span class="modal-badge anilist" id="modalAnilistScore" style="display:none"></span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-body">
+        <div class="anilist-base-score" id="anilistBaseSection" style="display:none">
+          <div class="anilist-base-label">📊 Score AniList (base)</div>
+          <div class="anilist-base-value" id="anilistBaseValue">-</div>
+        </div>
+        <div class="criteria-title">CRITÈRES <small id="criteriaType"></small></div>
+        <div id="criteriaContainer"></div>
+        <div class="final-score">
+          <div class="final-score-label">NOTE FINALE</div>
+          <div class="final-score-value" id="finalScore">5.0</div>
+          <div class="final-score-max">/ 10</div>
+        </div>
+        <div class="modal-shortcuts">
+          <kbd>Enter</kbd> Sauvegarder · <kbd>Ctrl</kbd>+<kbd>Enter</kbd> Sync AniList · <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Enter</kbd> Sync + Suivant
+        </div>
+        <div class="modal-actions">
+          <button class="action-btn save" onclick="saveRating()">💾 Save</button>
+          <button class="action-btn sync" onclick="syncToAniList()">🔄 AniList</button>
+          <button class="action-btn next" onclick="syncAndNext()">⏭️ Sync+Next</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings Modal -->
+  <div class="modal-overlay" id="settingsModal">
+    <div class="modal settings-modal">
+      <button class="modal-close" onclick="closeSettings()">×</button>
+      <div class="settings-tabs">
+        <button class="settings-tab manga active" onclick="switchSettingsTab('manga')">🔶 MANGA</button>
+        <button class="settings-tab anime" onclick="switchSettingsTab('anime')">🔷 ANIME</button>
+      </div>
+      <div class="settings-content">
+        <div class="settings-panel active" id="mangaSettings">
+          <div class="anilist-coef-section">
+            <div class="anilist-coef-header">
+              <label>📊 Coefficient score AniList existant</label>
+              <input type="number" id="mangaAnilistCoef" value="1" min="0" max="10" step="0.5">
+            </div>
+          </div>
+          <div id="mangaCriteriaList"></div>
+          <button class="add-criteria-btn" onclick="addCriteria('manga')">+ Ajouter un critère</button>
+        </div>
+        <div class="settings-panel" id="animeSettings">
+          <div class="anilist-coef-section">
+            <div class="anilist-coef-header">
+              <label>📊 Coefficient score AniList existant</label>
+              <input type="number" id="animeAnilistCoef" value="1" min="0" max="10" step="0.5">
+            </div>
+          </div>
+          <div id="animeCriteriaList"></div>
+          <button class="add-criteria-btn" onclick="addCriteria('anime')">+ Ajouter un critère</button>
+        </div>
+        <div class="settings-actions">
+          <button class="action-btn save" onclick="saveSettings()">💾 Sauvegarder les paramètres</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <input type="file" id="importInput" accept=".json" style="display:none" onchange="handleImport(event)">
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script>
+    const ANILIST_CLIENT_ID='24938';
+    let mediaList=[],myRatings={},currentMedia=null,accessToken=null,currentUser=null;
+    let filters={types:['MANGA','ANIME'],statuses:['COMPLETED','CURRENT','REPEATING'],rated:'all',search:''};
+    
+    // Default criteria config
+    const defaultConfig = {
+      manga: {
+        anilistCoef: 1,
+        criteria: [
+          { id: 'story', name: '📖 Histoire', coef: 1 },
+          { id: 'art', name: '🎨 Dessin', coef: 1 },
+          { id: 'characters', name: '👥 Personnages', coef: 1 },
+          { id: 'pacing', name: '📐 Découpage', coef: 1 },
+          { id: 'originality', name: '🎭 Originalité', coef: 0.5 },
+          { id: 'enjoyment', name: '💫 Plaisir', coef: 1.5 }
+        ]
+      },
+      anime: {
+        anilistCoef: 1,
+        criteria: [
+          { id: 'story', name: '📖 Histoire', coef: 1 },
+          { id: 'animation', name: '🎬 Animation', coef: 1 },
+          { id: 'characters', name: '👥 Personnages', coef: 1 },
+          { id: 'sound', name: '🎵 Son/Musique', coef: 1 },
+          { id: 'originality', name: '🎭 Originalité', coef: 0.5 },
+          { id: 'enjoyment', name: '💫 Plaisir', coef: 1.5 }
+        ]
+      }
+    };
+    let config = JSON.parse(JSON.stringify(defaultConfig));
+
+    document.addEventListener('DOMContentLoaded',()=>{
+      loadSavedData();
+      checkOAuthCallback();
+      setupEventListeners();
+    });
+
+    function loadSavedData() {
+      const savedRatings = localStorage.getItem('mangaRateRatings');
+      if (savedRatings) myRatings = JSON.parse(savedRatings);
+      const savedConfig = localStorage.getItem('mangaRateConfig');
+      if (savedConfig) config = JSON.parse(savedConfig);
+    }
+
+    function setupEventListeners(){
+      document.querySelectorAll('#typeFilters .filter-chip').forEach(c=>c.addEventListener('click',()=>toggleTypeFilter(c)));
+      document.querySelectorAll('#statusFilters .filter-chip').forEach(c=>c.addEventListener('click',()=>toggleStatusFilter(c)));
+      document.querySelectorAll('#ratedFilters .filter-chip').forEach(c=>c.addEventListener('click',()=>setRatedFilter(c)));
+      document.getElementById('searchInput').addEventListener('input',e=>{filters.search=e.target.value.toLowerCase();renderMediaGrid();});
+      document.getElementById('sortSelect').addEventListener('change',renderMediaGrid);
+      document.getElementById('ratingModal').addEventListener('click',e=>{if(e.target.id==='ratingModal')closeModal();});
+      document.getElementById('settingsModal').addEventListener('click',e=>{if(e.target.id==='settingsModal')closeSettings();});
+      document.addEventListener('keydown',handleKeydown);
+    }
+
+    function handleKeydown(e) {
+      if (document.getElementById('ratingModal').classList.contains('active')) {
+        if (e.key === 'Escape') { closeModal(); return; }
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          if (e.ctrlKey && e.shiftKey) { syncAndNext(); }
+          else if (e.ctrlKey) { syncToAniList(); }
+          else { saveRating(); }
+        }
+      }
+      if (document.getElementById('settingsModal').classList.contains('active') && e.key === 'Escape') {
+        closeSettings();
+      }
+    }
+
+    function toggleTypeFilter(chip){const type=chip.dataset.type;chip.classList.toggle('active');filters.types=chip.classList.contains('active')?[...new Set([...filters.types,type])]:filters.types.filter(t=>t!==type);renderMediaGrid();}
+    function toggleStatusFilter(chip){const status=chip.dataset.status;chip.classList.toggle('active');filters.statuses=chip.classList.contains('active')?[...new Set([...filters.statuses,status])]:filters.statuses.filter(s=>s!==status);renderMediaGrid();}
+    function setRatedFilter(chip){document.querySelectorAll('#ratedFilters .filter-chip').forEach(c=>c.classList.remove('active'));chip.classList.add('active');filters.rated=chip.dataset.rated;renderMediaGrid();}
+    function resetFilters(){filters={types:['MANGA','ANIME'],statuses:['COMPLETED','CURRENT','REPEATING'],rated:'all',search:''};document.querySelectorAll('#typeFilters .filter-chip').forEach(c=>c.classList.add('active'));document.querySelectorAll('#statusFilters .filter-chip').forEach(c=>c.classList.toggle('active',['COMPLETED','CURRENT','REPEATING'].includes(c.dataset.status)));document.querySelectorAll('#ratedFilters .filter-chip').forEach(c=>c.classList.toggle('active',c.dataset.rated==='all'));document.getElementById('searchInput').value='';document.getElementById('sortSelect').value='title';renderMediaGrid();showToast('Filtres reset');}
+
+    function handleAuth(){
+      if(accessToken){accessToken=null;currentUser=null;mediaList=[];localStorage.removeItem('anilistToken');updateUI();showToast('Déconnecté');return;}
+      window.location.href=`https://anilist.co/api/v2/oauth/authorize?client_id=${ANILIST_CLIENT_ID}&response_type=token`;
+    }
+    function checkOAuthCallback(){
+      const hash=window.location.hash;
+      if(hash.includes('access_token')){accessToken=new URLSearchParams(hash.substring(1)).get('access_token');if(accessToken){localStorage.setItem('anilistToken',accessToken);window.history.replaceState(null,'',window.location.pathname);loadUserData();return;}}
+      const saved=localStorage.getItem('anilistToken');if(saved){accessToken=saved;loadUserData();}
+    }
+    async function loadUserData(){
+      try{
+        const r=await fetchAniList(`query{Viewer{id name avatar{medium}}}`);
+        currentUser=r.data.Viewer;updateUI();await loadMediaList();showToast(`Bienvenue ${currentUser.name}!`,'success');
+      }catch(e){accessToken=null;localStorage.removeItem('anilistToken');updateUI();showToast('Erreur de connexion','error');}
+    }
+    async function loadMediaList(){
+      document.getElementById('mediaGrid').innerHTML='<div class="loading"><div class="spinner"></div></div>';
+      try{
+        const r=await fetchAniList(`query($userId:Int){manga:MediaListCollection(userId:$userId,type:MANGA){lists{entries{mediaId status score media{id title{romaji english native}coverImage{large}format status}}}}anime:MediaListCollection(userId:$userId,type:ANIME){lists{entries{mediaId status score media{id title{romaji english native}coverImage{large}format status}}}}}`,{userId:currentUser.id});
+        mediaList=[...r.data.manga.lists.flatMap(l=>l.entries.map(e=>({...e,type:'MANGA',anilistScore:e.score}))),...r.data.anime.lists.flatMap(l=>l.entries.map(e=>({...e,type:'ANIME',anilistScore:e.score})))];
+        updateStats();renderMediaGrid();
+      }catch(e){document.getElementById('mediaGrid').innerHTML=`<div class="empty-state"><div class="empty-state-icon">❌</div><div class="empty-state-text">Erreur: ${e.message}</div></div>`;}
+    }
+    async function fetchAniList(query,variables={}){
+      const r=await fetch('https://graphql.anilist.co',{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${accessToken}`},body:JSON.stringify({query,variables})});
+      const d=await r.json();if(d.errors)throw new Error(d.errors[0].message);return d;
+    }
+
+    function updateUI(){
+      const login=document.getElementById('loginScreen'),app=document.getElementById('appContent'),auth=document.getElementById('authSection');
+      if(accessToken&&currentUser){
+        login.style.display='none';app.classList.add('active');
+        auth.innerHTML=`<div class="user-info"><img class="user-avatar" src="${currentUser.avatar?.medium||''}" alt=""><span class="user-name">${currentUser.name}</span></div><button class="auth-btn logout" onclick="handleAuth()">Déco</button>`;
+      }else{
+        login.style.display='flex';app.classList.remove('active');
+        auth.innerHTML=`<button class="auth-btn" onclick="handleAuth()">Connexion AniList</button>`;
+      }
+    }
+
+    function updateStats(){
+      const total=mediaList.length;
+      const rated=Object.keys(myRatings).filter(id=>mediaList.some(m=>m.mediaId.toString()===id)).length;
+      const scores=Object.values(myRatings).filter(r=>mediaList.some(m=>m.mediaId.toString()===r.mediaId.toString())).map(r=>r.finalScore);
+      document.getElementById('statTotal').textContent=total;
+      document.getElementById('statRated').textContent=rated;
+      document.getElementById('statAvg').textContent=scores.length?(scores.reduce((a,b)=>a+b,0)/scores.length).toFixed(1):'-';
+    }
+
+    function getFilteredMedia(){
+      let f=mediaList;
+      if(filters.types.length)f=f.filter(m=>filters.types.includes(m.type));else f=[];
+      if(filters.statuses.length)f=f.filter(m=>filters.statuses.includes(m.status));else f=[];
+      if(filters.rated==='rated')f=f.filter(m=>myRatings[m.mediaId]);
+      else if(filters.rated==='unrated')f=f.filter(m=>!myRatings[m.mediaId]);
+      if(filters.search)f=f.filter(m=>((m.media.title.english||m.media.title.romaji||'').toLowerCase().includes(filters.search)||(m.media.title.native||'').toLowerCase().includes(filters.search)));
+      const sort=document.getElementById('sortSelect').value;
+      if(sort==='title')f.sort((a,b)=>(a.media.title.english||a.media.title.romaji||'').localeCompare(b.media.title.english||b.media.title.romaji||''));
+      else if(sort==='score-desc')f.sort((a,b)=>(myRatings[b.mediaId]?.finalScore||0)-(myRatings[a.mediaId]?.finalScore||0));
+      else if(sort==='score-asc')f.sort((a,b)=>(myRatings[a.mediaId]?.finalScore||0)-(myRatings[b.mediaId]?.finalScore||0));
+      else if(sort==='anilist-desc')f.sort((a,b)=>(b.anilistScore||0)-(a.anilistScore||0));
+      else if(sort==='recent')f.sort((a,b)=>(myRatings[b.mediaId]?.timestamp||0)-(myRatings[a.mediaId]?.timestamp||0));
+      return f;
+    }
+
+    function renderMediaGrid(){
+      const grid=document.getElementById('mediaGrid'),filtered=getFilteredMedia();
+      document.getElementById('statFiltered').textContent=filtered.length;
+      document.getElementById('resultsCount').textContent=filtered.length;
+      if(!filtered.length){grid.innerHTML=`<div class="empty-state"><div class="empty-state-icon">🔍</div><div class="empty-state-text">Aucun résultat</div></div>`;return;}
+      const labels={COMPLETED:'Terminé',CURRENT:'En cours',PAUSED:'En pause',DROPPED:'Abandonné',PLANNING:'Prévu',REPEATING:'Relecture'};
+      grid.innerHTML=filtered.map(e=>{
+        const t=e.media.title.english||e.media.title.romaji,r=myRatings[e.mediaId];
+        const aniScore=e.anilistScore?`<div class="media-anilist-score">${e.anilistScore/10}</div>`:'';
+        return`<div class="media-card ${r?'rated':''}" onclick="openRatingModal(${e.mediaId})"><span class="media-type-badge ${e.type.toLowerCase()}">${e.type}</span>${aniScore}<img class="media-cover" src="${e.media.coverImage.large}" alt="${t}" loading="lazy"><div class="media-info"><div class="media-title">${t}</div><div class="media-meta"><span class="media-status">${labels[e.status]||e.status}</span>${r?`<span class="media-score">${r.finalScore.toFixed(1)}</span>`:''}</div></div></div>`;
+      }).join('');
+      updateRatingsSection();
+    }
+
+    function openRatingModal(mediaId){
+      const e=mediaList.find(m=>m.mediaId===mediaId);if(!e)return;
+      currentMedia=e;
+      const labels={COMPLETED:'Terminé',CURRENT:'En cours',PAUSED:'En pause',DROPPED:'Abandonné',PLANNING:'Prévu',REPEATING:'Relecture'};
+      const typeKey=e.type.toLowerCase();
+      const criteria=config[typeKey].criteria;
+      
+      document.getElementById('modalCover').src=e.media.coverImage.large;
+      document.getElementById('modalTitle').textContent=e.media.title.english||e.media.title.romaji;
+      document.getElementById('modalSubtitle').textContent=e.media.title.native||'';
+      const typeEl=document.getElementById('modalType');typeEl.textContent=e.type;typeEl.className=`modal-badge type ${typeKey}`;
+      document.getElementById('modalFormat').textContent=e.media.format||'';
+      document.getElementById('modalStatus').textContent=labels[e.status]||e.status;
+      document.getElementById('criteriaType').textContent=`(${e.type})`;
+      
+      // AniList score
+      const aniSection=document.getElementById('anilistBaseSection');
+      const aniBadge=document.getElementById('modalAnilistScore');
+      if(e.anilistScore){
+        aniSection.style.display='flex';
+        document.getElementById('anilistBaseValue').textContent=(e.anilistScore/10).toFixed(1);
+        aniBadge.style.display='inline';
+        aniBadge.textContent=`AniList: ${e.anilistScore/10}`;
+      }else{
+        aniSection.style.display='none';
+        aniBadge.style.display='none';
+      }
+      
+      // Build criteria sliders
+      const container=document.getElementById('criteriaContainer');
+      const ex=myRatings[mediaId];
+      container.innerHTML=criteria.map(c=>{
+        const val=ex?.criteria?.[c.id]??5;
+        return`<div class="criteria-item"><div class="criteria-header"><span class="criteria-name">${c.name}<span class="criteria-coef">×${c.coef}</span></span><span class="criteria-value" id="val_${c.id}">${val}</span></div><input type="range" class="criteria-slider" id="slider_${c.id}" data-id="${c.id}" min="0" max="10" step="0.5" value="${val}"></div>`;
+      }).join('');
+      
+      // Attach slider events
+      criteria.forEach(c=>{
+        const slider=document.getElementById(`slider_${c.id}`);
+        slider.addEventListener('input',()=>{
+          document.getElementById(`val_${c.id}`).textContent=slider.value;
+          calculateFinalScore();
+        });
+      });
+      
+      calculateFinalScore();
+      document.getElementById('ratingModal').classList.add('active');
+    }
+
+    function closeModal(){document.getElementById('ratingModal').classList.remove('active');currentMedia=null;}
+
+    function calculateFinalScore(){
+      if(!currentMedia)return;
+      const typeKey=currentMedia.type.toLowerCase();
+      const criteriaConfig=config[typeKey].criteria;
+      const anilistCoef=config[typeKey].anilistCoef;
+      
+      let totalWeight=0,weightedSum=0;
+      
+      // Add AniList base score if exists
+      if(currentMedia.anilistScore && anilistCoef>0){
+        weightedSum+=(currentMedia.anilistScore/10)*anilistCoef;
+        totalWeight+=anilistCoef;
+      }
+      
+      // Add criteria scores
+      criteriaConfig.forEach(c=>{
+        const slider=document.getElementById(`slider_${c.id}`);
+        if(slider){
+          const val=parseFloat(slider.value);
+          weightedSum+=val*c.coef;
+          totalWeight+=c.coef;
+        }
+      });
+      
+      const final=totalWeight>0?weightedSum/totalWeight:0;
+      document.getElementById('finalScore').textContent=final.toFixed(1);
+    }
+
+    function saveRating(){
+      if(!currentMedia)return;
+      const typeKey=currentMedia.type.toLowerCase();
+      const criteriaConfig=config[typeKey].criteria;
+      
+      const criteriaValues={};
+      criteriaConfig.forEach(c=>{
+        const slider=document.getElementById(`slider_${c.id}`);
+        if(slider)criteriaValues[c.id]=parseFloat(slider.value);
+      });
+      
+      const r={
+        mediaId:currentMedia.mediaId,
+        title:currentMedia.media.title.english||currentMedia.media.title.romaji,
+        cover:currentMedia.media.coverImage.large,
+        type:currentMedia.type,
+        anilistScore:currentMedia.anilistScore,
+        criteria:criteriaValues,
+        finalScore:parseFloat(document.getElementById('finalScore').textContent),
+        timestamp:Date.now()
+      };
+      myRatings[currentMedia.mediaId]=r;
+      localStorage.setItem('mangaRateRatings',JSON.stringify(myRatings));
+      updateStats();renderMediaGrid();closeModal();
+      showToast(`${r.title} → ${r.finalScore}/10`,'success');
+    }
+
+    async function syncToAniList(){
+      if(!currentMedia||!accessToken)return;
+      const finalScore=parseFloat(document.getElementById('finalScore').textContent);
+      const anilistScore=Math.round(finalScore*10); // Convert to 0-100
+      try{
+        await fetchAniList(`mutation($mediaId:Int,$score:Float){SaveMediaListEntry(mediaId:$mediaId,score:$score){id score}}`,{mediaId:currentMedia.mediaId,score:anilistScore});
+        // Update local data
+        const entry=mediaList.find(m=>m.mediaId===currentMedia.mediaId);
+        if(entry)entry.anilistScore=anilistScore;
+        showToast(`AniList: ${finalScore.toFixed(1)}/10`,'success');
+      }catch(e){showToast(`Erreur: ${e.message}`,'error');}
+    }
+
+    async function syncAndNext(){
+      if(!currentMedia)return;
+      await syncToAniList();
+      saveRating();
+      // Find next unrated in filtered list
+      const filtered=getFilteredMedia();
+      const currentIdx=filtered.findIndex(m=>m.mediaId===currentMedia.mediaId);
+      let nextMedia=null;
+      for(let i=currentIdx+1;i<filtered.length;i++){
+        if(!myRatings[filtered[i].mediaId]){nextMedia=filtered[i];break;}
+      }
+      if(!nextMedia){
+        for(let i=0;i<currentIdx;i++){
+          if(!myRatings[filtered[i].mediaId]){nextMedia=filtered[i];break;}
+        }
+      }
+      if(nextMedia){
+        setTimeout(()=>openRatingModal(nextMedia.mediaId),300);
+      }else{
+        showToast('Tous notés !','success');
+      }
+    }
+
+    async function syncRatingToAniList(mediaId){
+      const r=myRatings[mediaId];
+      if(!r||!accessToken)return;
+      const anilistScore=Math.round(r.finalScore*10);
+      try{
+        await fetchAniList(`mutation($mediaId:Int,$score:Float){SaveMediaListEntry(mediaId:$mediaId,score:$score){id score}}`,{mediaId:parseInt(mediaId),score:anilistScore});
+        const entry=mediaList.find(m=>m.mediaId.toString()===mediaId.toString());
+        if(entry)entry.anilistScore=anilistScore;
+        renderMediaGrid();
+        showToast(`${r.title} → AniList: ${r.finalScore}/10`,'success');
+      }catch(e){showToast(`Erreur: ${e.message}`,'error');}
+    }
+
+    function updateRatingsSection(){
+      const section=document.getElementById('ratingsSection'),tbody=document.getElementById('ratingsBody');
+      const ratings=Object.values(myRatings).filter(r=>mediaList.some(m=>m.mediaId.toString()===r.mediaId.toString())).sort((a,b)=>b.timestamp-a.timestamp);
+      if(!ratings.length){section.style.display='none';return;}
+      section.style.display='block';
+      tbody.innerHTML=ratings.map(r=>{
+        const entry=mediaList.find(m=>m.mediaId.toString()===r.mediaId.toString());
+        const aniScore=entry?.anilistScore?(entry.anilistScore/10).toFixed(1):'-';
+        return`<tr><td><div class="rating-row-title"><img class="rating-row-cover" src="${r.cover}" alt=""><span>${r.title}</span></div></td><td><span class="modal-badge type ${r.type.toLowerCase()}">${r.type}</span></td><td>${aniScore}</td><td><span class="rating-cell-score">${r.finalScore.toFixed(1)}</span></td><td><div class="rating-actions"><button class="rating-action-btn anilist" onclick="syncRatingToAniList(${r.mediaId})" title="Sync AniList">🔄</button><button class="rating-action-btn delete" onclick="deleteRating(${r.mediaId})" title="Supprimer">🗑️</button></div></td></tr>`;
+      }).join('');
+    }
+
+    function deleteRating(mediaId){if(!confirm('Supprimer?'))return;delete myRatings[mediaId];localStorage.setItem('mangaRateRatings',JSON.stringify(myRatings));updateStats();renderMediaGrid();showToast('Supprimé');}
+    function exportRatings(){const data={ratings:myRatings,config:config};const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`mangarate-${new Date().toISOString().split('T')[0]}.json`;a.click();showToast('Export OK','success');}
+    function importRatings(){document.getElementById('importInput').click();}
+    function handleImport(e){const file=e.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=ev=>{try{const data=JSON.parse(ev.target.result);if(data.ratings)myRatings={...myRatings,...data.ratings};if(data.config)config=data.config;localStorage.setItem('mangaRateRatings',JSON.stringify(myRatings));localStorage.setItem('mangaRateConfig',JSON.stringify(config));updateStats();renderMediaGrid();showToast('Import OK','success');}catch{showToast('Fichier invalide','error');}};reader.readAsText(file);e.target.value='';}
+
+    // Settings
+    function openSettings(){
+      renderSettingsCriteria('manga');
+      renderSettingsCriteria('anime');
+      document.getElementById('mangaAnilistCoef').value=config.manga.anilistCoef;
+      document.getElementById('animeAnilistCoef').value=config.anime.anilistCoef;
+      document.getElementById('settingsModal').classList.add('active');
+    }
+    function closeSettings(){document.getElementById('settingsModal').classList.remove('active');}
+    function switchSettingsTab(type){
+      document.querySelectorAll('.settings-tab').forEach(t=>t.classList.remove('active'));
+      document.querySelectorAll('.settings-panel').forEach(p=>p.classList.remove('active'));
+      document.querySelector(`.settings-tab.${type}`).classList.add('active');
+      document.getElementById(`${type}Settings`).classList.add('active');
+    }
+    function renderSettingsCriteria(type){
+      const list=document.getElementById(`${type}CriteriaList`);
+      list.innerHTML=config[type].criteria.map((c,i)=>`
+        <div class="criteria-config" data-index="${i}">
+          <div class="criteria-config-header">
+            <input type="text" value="${c.name}" placeholder="Nom du critère" onchange="updateCriteriaName('${type}',${i},this.value)">
+            <div class="criteria-config-coef">
+              <label>Coef:</label>
+              <input type="number" value="${c.coef}" min="0" max="10" step="0.5" onchange="updateCriteriaCoef('${type}',${i},this.value)">
+            </div>
+            <button class="criteria-config-delete" onclick="deleteCriteria('${type}',${i})">🗑️</button>
+          </div>
+        </div>
+      `).join('');
+    }
+    function updateCriteriaName(type,index,value){config[type].criteria[index].name=value;}
+    function updateCriteriaCoef(type,index,value){config[type].criteria[index].coef=parseFloat(value)||1;}
+    function addCriteria(type){
+      const id='custom_'+Date.now();
+      config[type].criteria.push({id,name:'Nouveau critère',coef:1});
+      renderSettingsCriteria(type);
+    }
+    function deleteCriteria(type,index){
+      if(config[type].criteria.length<=1){showToast('Min 1 critère','error');return;}
+      config[type].criteria.splice(index,1);
+      renderSettingsCriteria(type);
+    }
+    function saveSettings(){
+      config.manga.anilistCoef=parseFloat(document.getElementById('mangaAnilistCoef').value)||0;
+      config.anime.anilistCoef=parseFloat(document.getElementById('animeAnilistCoef').value)||0;
+      localStorage.setItem('mangaRateConfig',JSON.stringify(config));
+      closeSettings();
+      showToast('Paramètres sauvegardés','success');
+    }
+
+    function showToast(msg,type=''){const t=document.createElement('div');t.className=`toast ${type}`;t.textContent=msg;document.getElementById('toastContainer').appendChild(t);setTimeout(()=>{t.style.opacity='0';t.style.transform='translateX(100%)';setTimeout(()=>t.remove(),300);},3000);}
+  </script>
+</body>
+</html>

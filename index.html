@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MangaRate • Notation Multi-Critères</title>
+  <title>AniRate • Notation Multi-Critères</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root { --bg-dark: #0a0a0c; --bg-card: #14141a; --bg-hover: #1a1a22; --accent: #ff6b4a; --accent-glow: rgba(255, 107, 74, 0.3); --text: #f5f5f5; --text-dim: #888; --border: #2a2a35; --success: #4ade80; --manga: #ff6b4a; --anime: #6366f1; --anilist: #02a9ff; }
@@ -14,11 +14,11 @@
     header { display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 0; margin-bottom: 2rem; border-bottom: 1px solid var(--border); flex-wrap: wrap; gap: 1rem; }
     .logo { font-family: 'Bebas Neue', sans-serif; font-size: 2.5rem; letter-spacing: 0.1em; display: flex; align-items: center; gap: 0.5rem; }
     .logo span { color: var(--accent); }
-    .logo-icon { width: 40px; height: 40px; background: linear-gradient(135deg, var(--accent) 0%, #ff8a6b 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; transform: rotate(-5deg); }
+    .logo-icon { width: 40px; height: 40px; background: linear-gradient(135deg, var(--anilist) 0%, #0284c7 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; transform: rotate(-5deg); }
     .header-actions { display: flex; align-items: center; gap: 0.75rem; }
-    .auth-section { display: flex; align-items: center; gap: 1rem; }
     .icon-btn { background: var(--bg-card); border: 1px solid var(--border); color: var(--text-dim); width: 42px; height: 42px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; transition: all 0.2s; }
     .icon-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .auth-section { display: flex; align-items: center; gap: 1rem; }
     .auth-btn { background: linear-gradient(135deg, #02a9ff 0%, #0284c7 100%); border: none; color: white; padding: 0.8rem 1.8rem; font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 0.95rem; border-radius: 10px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 0.5rem; }
     .auth-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(2, 169, 255, 0.3); }
     .auth-btn.logout { background: transparent; border: 2px solid var(--border); color: var(--text-dim); padding: 0.6rem 1.2rem; }
@@ -89,19 +89,16 @@
     .modal-title-section { flex: 1; min-width: 0; }
     .modal-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.6rem; margin-bottom: 0.3rem; line-height: 1.1; }
     .modal-subtitle { color: var(--text-dim); font-size: 0.85rem; margin-bottom: 0.75rem; }
-    .modal-badges { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .modal-badges { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; }
     .modal-badge { font-size: 0.7rem; padding: 0.25rem 0.6rem; background: var(--bg-dark); border-radius: 5px; color: var(--text-dim); }
     .modal-badge.type { color: var(--manga); }
     .modal-badge.type.anime { color: var(--anime); }
-    .modal-badge.anilist { background: var(--anilist); color: white; }
+    .modal-badge.anilist { background: var(--anilist); color: white; font-weight: 600; }
     .modal-close { position: absolute; top: 1rem; right: 1rem; width: 36px; height: 36px; background: var(--bg-dark); border: none; border-radius: 50%; color: var(--text); font-size: 1.3rem; cursor: pointer; transition: all 0.3s ease; }
     .modal-close:hover { background: var(--accent); color: var(--bg-dark); transform: rotate(90deg); }
     .modal-body { padding: 1.5rem; }
     .criteria-title { font-family: 'Bebas Neue', sans-serif; font-size: 1rem; letter-spacing: 0.15em; color: var(--text-dim); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
     .criteria-title small { font-family: 'DM Sans', sans-serif; font-size: 0.7rem; color: var(--text-dim); font-weight: normal; letter-spacing: 0; }
-    .anilist-base-score { background: var(--bg-dark); border-radius: 12px; padding: 1rem; margin-bottom: 1.25rem; display: flex; align-items: center; justify-content: space-between; }
-    .anilist-base-label { font-size: 0.85rem; color: var(--text-dim); display: flex; align-items: center; gap: 0.5rem; }
-    .anilist-base-value { font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; color: var(--anilist); }
     .criteria-item { margin-bottom: 1rem; }
     .criteria-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
     .criteria-name { font-weight: 500; font-size: 0.85rem; display: flex; align-items: center; gap: 0.5rem; }
@@ -153,7 +150,6 @@
     .toast.success::before { content: '✓'; color: var(--success); font-weight: bold; }
     .toast.error { border-color: #ef4444; }
     .toast.error::before { content: '✕'; color: #ef4444; font-weight: bold; }
-    /* Settings Modal */
     .settings-modal { max-width: 800px; }
     .settings-tabs { display: flex; border-bottom: 1px solid var(--border); }
     .settings-tab { flex: 1; padding: 1rem; background: none; border: none; color: var(--text-dim); font-family: 'Bebas Neue', sans-serif; font-size: 1rem; letter-spacing: 0.1em; cursor: pointer; transition: all 0.2s; border-bottom: 2px solid transparent; }
@@ -165,8 +161,8 @@
     .settings-panel { display: none; }
     .settings-panel.active { display: block; }
     .criteria-config { background: var(--bg-dark); border-radius: 12px; padding: 1rem; margin-bottom: 1rem; }
-    .criteria-config-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 0.75rem; }
-    .criteria-config-header input { flex: 1; background: var(--bg-card); border: 1px solid var(--border); border-radius: 6px; padding: 0.5rem; color: var(--text); font-size: 0.9rem; }
+    .criteria-config-header { display: flex; align-items: center; gap: 1rem; }
+    .criteria-config-header input[type="text"] { flex: 1; background: var(--bg-card); border: 1px solid var(--border); border-radius: 6px; padding: 0.5rem; color: var(--text); font-size: 0.9rem; }
     .criteria-config-header input:focus { outline: none; border-color: var(--accent); }
     .criteria-config-coef { display: flex; align-items: center; gap: 0.5rem; }
     .criteria-config-coef label { font-size: 0.8rem; color: var(--text-dim); }
@@ -176,17 +172,13 @@
     .add-criteria-btn { width: 100%; padding: 0.75rem; background: var(--bg-dark); border: 2px dashed var(--border); border-radius: 12px; color: var(--text-dim); font-size: 0.9rem; cursor: pointer; transition: all 0.2s; }
     .add-criteria-btn:hover { border-color: var(--accent); color: var(--accent); }
     .settings-actions { display: flex; gap: 0.75rem; margin-top: 1.5rem; }
-    .anilist-coef-section { background: var(--bg-dark); border-radius: 12px; padding: 1rem; margin-bottom: 1.5rem; }
-    .anilist-coef-header { display: flex; align-items: center; justify-content: space-between; }
-    .anilist-coef-header label { font-size: 0.9rem; display: flex; align-items: center; gap: 0.5rem; }
-    .anilist-coef-header input { width: 70px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 6px; padding: 0.4rem; color: var(--text); font-size: 0.9rem; text-align: center; }
     @media (max-width: 768px) { .container { padding: 1rem; } header { flex-direction: column; } .filter-section { padding: 1rem; } .filter-row { flex-direction: column; align-items: flex-start; } .filter-divider { display: none; } .filter-search { width: 100%; } .media-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); } .modal-header { flex-direction: column; align-items: center; text-align: center; } .modal-actions { flex-direction: column; } .ratings-table th:nth-child(n+3), .ratings-table td:nth-child(n+3) { display: none; } }
   </style>
 </head>
 <body>
   <div class="container">
     <header>
-      <div class="logo"><div class="logo-icon">📊</div>MANGA<span>RATE</span></div>
+      <div class="logo"><div class="logo-icon">📊</div>ANI<span>RATE</span></div>
       <div class="header-actions">
         <button class="icon-btn" onclick="openSettings()" title="Paramètres">⚙️</button>
         <div class="auth-section" id="authSection">
@@ -196,7 +188,7 @@
     </header>
     <div class="login-screen" id="loginScreen">
       <div class="login-icon">🎌</div>
-      <h1 class="login-title">BIENVENUE SUR MANGA<span style="color: var(--accent)">RATE</span></h1>
+      <h1 class="login-title">BIENVENUE SUR ANI<span style="color: var(--accent)">RATE</span></h1>
       <p class="login-subtitle">Connecte-toi avec ton compte AniList pour noter tes mangas et animes avec des critères personnalisables.</p>
       <button class="login-btn" onclick="handleAuth()">Se connecter avec AniList</button>
     </div>
@@ -270,10 +262,6 @@
         </div>
       </div>
       <div class="modal-body">
-        <div class="anilist-base-score" id="anilistBaseSection" style="display:none">
-          <div class="anilist-base-label">📊 Score AniList (base)</div>
-          <div class="anilist-base-value" id="anilistBaseValue">-</div>
-        </div>
         <div class="criteria-title">CRITÈRES <small id="criteriaType"></small></div>
         <div id="criteriaContainer"></div>
         <div class="final-score">
@@ -303,22 +291,10 @@
       </div>
       <div class="settings-content">
         <div class="settings-panel active" id="mangaSettings">
-          <div class="anilist-coef-section">
-            <div class="anilist-coef-header">
-              <label>📊 Coefficient score AniList existant</label>
-              <input type="number" id="mangaAnilistCoef" value="1" min="0" max="10" step="0.5">
-            </div>
-          </div>
           <div id="mangaCriteriaList"></div>
           <button class="add-criteria-btn" onclick="addCriteria('manga')">+ Ajouter un critère</button>
         </div>
         <div class="settings-panel" id="animeSettings">
-          <div class="anilist-coef-section">
-            <div class="anilist-coef-header">
-              <label>📊 Coefficient score AniList existant</label>
-              <input type="number" id="animeAnilistCoef" value="1" min="0" max="10" step="0.5">
-            </div>
-          </div>
           <div id="animeCriteriaList"></div>
           <button class="add-criteria-btn" onclick="addCriteria('anime')">+ Ajouter un critère</button>
         </div>
@@ -337,10 +313,8 @@
     let mediaList=[],myRatings={},currentMedia=null,accessToken=null,currentUser=null;
     let filters={types:['MANGA','ANIME'],statuses:['COMPLETED','CURRENT','REPEATING'],rated:'all',search:''};
     
-    // Default criteria config
     const defaultConfig = {
       manga: {
-        anilistCoef: 1,
         criteria: [
           { id: 'story', name: '📖 Histoire', coef: 1 },
           { id: 'art', name: '🎨 Dessin', coef: 1 },
@@ -351,7 +325,6 @@
         ]
       },
       anime: {
-        anilistCoef: 1,
         criteria: [
           { id: 'story', name: '📖 Histoire', coef: 1 },
           { id: 'animation', name: '🎬 Animation', coef: 1 },
@@ -371,9 +344,9 @@
     });
 
     function loadSavedData() {
-      const savedRatings = localStorage.getItem('mangaRateRatings');
+      const savedRatings = localStorage.getItem('aniRateRatings');
       if (savedRatings) myRatings = JSON.parse(savedRatings);
-      const savedConfig = localStorage.getItem('mangaRateConfig');
+      const savedConfig = localStorage.getItem('aniRateConfig');
       if (savedConfig) config = JSON.parse(savedConfig);
     }
 
@@ -456,6 +429,14 @@
       document.getElementById('statAvg').textContent=scores.length?(scores.reduce((a,b)=>a+b,0)/scores.length).toFixed(1):'-';
     }
 
+    // Get effective score: AniRate score if exists, otherwise AniList score
+    function getEffectiveScore(mediaId, anilistScore) {
+      const rating = myRatings[mediaId];
+      if (rating) return { score: rating.finalScore, source: 'anirate' };
+      if (anilistScore) return { score: anilistScore / 10, source: 'anilist' };
+      return { score: null, source: null };
+    }
+
     function getFilteredMedia(){
       let f=mediaList;
       if(filters.types.length)f=f.filter(m=>filters.types.includes(m.type));else f=[];
@@ -465,8 +446,16 @@
       if(filters.search)f=f.filter(m=>((m.media.title.english||m.media.title.romaji||'').toLowerCase().includes(filters.search)||(m.media.title.native||'').toLowerCase().includes(filters.search)));
       const sort=document.getElementById('sortSelect').value;
       if(sort==='title')f.sort((a,b)=>(a.media.title.english||a.media.title.romaji||'').localeCompare(b.media.title.english||b.media.title.romaji||''));
-      else if(sort==='score-desc')f.sort((a,b)=>(myRatings[b.mediaId]?.finalScore||0)-(myRatings[a.mediaId]?.finalScore||0));
-      else if(sort==='score-asc')f.sort((a,b)=>(myRatings[a.mediaId]?.finalScore||0)-(myRatings[b.mediaId]?.finalScore||0));
+      else if(sort==='score-desc')f.sort((a,b)=>{
+        const sa=getEffectiveScore(a.mediaId,a.anilistScore).score||0;
+        const sb=getEffectiveScore(b.mediaId,b.anilistScore).score||0;
+        return sb-sa;
+      });
+      else if(sort==='score-asc')f.sort((a,b)=>{
+        const sa=getEffectiveScore(a.mediaId,a.anilistScore).score||0;
+        const sb=getEffectiveScore(b.mediaId,b.anilistScore).score||0;
+        return sa-sb;
+      });
       else if(sort==='anilist-desc')f.sort((a,b)=>(b.anilistScore||0)-(a.anilistScore||0));
       else if(sort==='recent')f.sort((a,b)=>(myRatings[b.mediaId]?.timestamp||0)-(myRatings[a.mediaId]?.timestamp||0));
       return f;
@@ -479,9 +468,12 @@
       if(!filtered.length){grid.innerHTML=`<div class="empty-state"><div class="empty-state-icon">🔍</div><div class="empty-state-text">Aucun résultat</div></div>`;return;}
       const labels={COMPLETED:'Terminé',CURRENT:'En cours',PAUSED:'En pause',DROPPED:'Abandonné',PLANNING:'Prévu',REPEATING:'Relecture'};
       grid.innerHTML=filtered.map(e=>{
-        const t=e.media.title.english||e.media.title.romaji,r=myRatings[e.mediaId];
-        const aniScore=e.anilistScore?`<div class="media-anilist-score">${e.anilistScore/10}</div>`:'';
-        return`<div class="media-card ${r?'rated':''}" onclick="openRatingModal(${e.mediaId})"><span class="media-type-badge ${e.type.toLowerCase()}">${e.type}</span>${aniScore}<img class="media-cover" src="${e.media.coverImage.large}" alt="${t}" loading="lazy"><div class="media-info"><div class="media-title">${t}</div><div class="media-meta"><span class="media-status">${labels[e.status]||e.status}</span>${r?`<span class="media-score">${r.finalScore.toFixed(1)}</span>`:''}</div></div></div>`;
+        const t=e.media.title.english||e.media.title.romaji;
+        const r=myRatings[e.mediaId];
+        const eff=getEffectiveScore(e.mediaId,e.anilistScore);
+        const aniScoreBadge=e.anilistScore?`<div class="media-anilist-score">AL:${(e.anilistScore/10).toFixed(1)}</div>`:'';
+        const scoreDisplay=eff.score?`<span class="media-score" style="${eff.source==='anilist'?'color:var(--anilist);opacity:0.7':''}">${eff.score.toFixed(1)}</span>`:'';
+        return`<div class="media-card ${r?'rated':''}" onclick="openRatingModal(${e.mediaId})"><span class="media-type-badge ${e.type.toLowerCase()}">${e.type}</span>${aniScoreBadge}<img class="media-cover" src="${e.media.coverImage.large}" alt="${t}" loading="lazy"><div class="media-info"><div class="media-title">${t}</div><div class="media-meta"><span class="media-status">${labels[e.status]||e.status}</span>${scoreDisplay}</div></div></div>`;
       }).join('');
       updateRatingsSection();
     }
@@ -501,16 +493,12 @@
       document.getElementById('modalStatus').textContent=labels[e.status]||e.status;
       document.getElementById('criteriaType').textContent=`(${e.type})`;
       
-      // AniList score
-      const aniSection=document.getElementById('anilistBaseSection');
+      // AniList score badge
       const aniBadge=document.getElementById('modalAnilistScore');
       if(e.anilistScore){
-        aniSection.style.display='flex';
-        document.getElementById('anilistBaseValue').textContent=(e.anilistScore/10).toFixed(1);
         aniBadge.style.display='inline';
-        aniBadge.textContent=`AniList: ${e.anilistScore/10}`;
+        aniBadge.textContent=`AniList: ${(e.anilistScore/10).toFixed(1)}`;
       }else{
-        aniSection.style.display='none';
         aniBadge.style.display='none';
       }
       
@@ -541,17 +529,10 @@
       if(!currentMedia)return;
       const typeKey=currentMedia.type.toLowerCase();
       const criteriaConfig=config[typeKey].criteria;
-      const anilistCoef=config[typeKey].anilistCoef;
       
       let totalWeight=0,weightedSum=0;
       
-      // Add AniList base score if exists
-      if(currentMedia.anilistScore && anilistCoef>0){
-        weightedSum+=(currentMedia.anilistScore/10)*anilistCoef;
-        totalWeight+=anilistCoef;
-      }
-      
-      // Add criteria scores
+      // Only criteria scores - NO AniList score in calculation
       criteriaConfig.forEach(c=>{
         const slider=document.getElementById(`slider_${c.id}`);
         if(slider){
@@ -587,7 +568,7 @@
         timestamp:Date.now()
       };
       myRatings[currentMedia.mediaId]=r;
-      localStorage.setItem('mangaRateRatings',JSON.stringify(myRatings));
+      localStorage.setItem('aniRateRatings',JSON.stringify(myRatings));
       updateStats();renderMediaGrid();closeModal();
       showToast(`${r.title} → ${r.finalScore}/10`,'success');
     }
@@ -595,13 +576,12 @@
     async function syncToAniList(){
       if(!currentMedia||!accessToken)return;
       const finalScore=parseFloat(document.getElementById('finalScore').textContent);
-      const anilistScore=Math.round(finalScore*10); // Convert to 0-100
+      const anilistScore=Math.round(finalScore*10);
       try{
         await fetchAniList(`mutation($mediaId:Int,$score:Float){SaveMediaListEntry(mediaId:$mediaId,score:$score){id score}}`,{mediaId:currentMedia.mediaId,score:anilistScore});
-        // Update local data
         const entry=mediaList.find(m=>m.mediaId===currentMedia.mediaId);
         if(entry)entry.anilistScore=anilistScore;
-        showToast(`AniList: ${finalScore.toFixed(1)}/10`,'success');
+        showToast(`AniList ← ${finalScore.toFixed(1)}/10`,'success');
       }catch(e){showToast(`Erreur: ${e.message}`,'error');}
     }
 
@@ -609,7 +589,6 @@
       if(!currentMedia)return;
       await syncToAniList();
       saveRating();
-      // Find next unrated in filtered list
       const filtered=getFilteredMedia();
       const currentIdx=filtered.findIndex(m=>m.mediaId===currentMedia.mediaId);
       let nextMedia=null;
@@ -649,21 +628,19 @@
       tbody.innerHTML=ratings.map(r=>{
         const entry=mediaList.find(m=>m.mediaId.toString()===r.mediaId.toString());
         const aniScore=entry?.anilistScore?(entry.anilistScore/10).toFixed(1):'-';
-        return`<tr><td><div class="rating-row-title"><img class="rating-row-cover" src="${r.cover}" alt=""><span>${r.title}</span></div></td><td><span class="modal-badge type ${r.type.toLowerCase()}">${r.type}</span></td><td>${aniScore}</td><td><span class="rating-cell-score">${r.finalScore.toFixed(1)}</span></td><td><div class="rating-actions"><button class="rating-action-btn anilist" onclick="syncRatingToAniList(${r.mediaId})" title="Sync AniList">🔄</button><button class="rating-action-btn delete" onclick="deleteRating(${r.mediaId})" title="Supprimer">🗑️</button></div></td></tr>`;
+        return`<tr><td><div class="rating-row-title"><img class="rating-row-cover" src="${r.cover}" alt=""><span>${r.title}</span></div></td><td><span class="modal-badge type ${r.type.toLowerCase()}">${r.type}</span></td><td style="color:var(--anilist)">${aniScore}</td><td><span class="rating-cell-score">${r.finalScore.toFixed(1)}</span></td><td><div class="rating-actions"><button class="rating-action-btn anilist" onclick="syncRatingToAniList(${r.mediaId})" title="Sync AniList">🔄</button><button class="rating-action-btn delete" onclick="deleteRating(${r.mediaId})" title="Supprimer">🗑️</button></div></td></tr>`;
       }).join('');
     }
 
-    function deleteRating(mediaId){if(!confirm('Supprimer?'))return;delete myRatings[mediaId];localStorage.setItem('mangaRateRatings',JSON.stringify(myRatings));updateStats();renderMediaGrid();showToast('Supprimé');}
-    function exportRatings(){const data={ratings:myRatings,config:config};const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`mangarate-${new Date().toISOString().split('T')[0]}.json`;a.click();showToast('Export OK','success');}
+    function deleteRating(mediaId){if(!confirm('Supprimer?'))return;delete myRatings[mediaId];localStorage.setItem('aniRateRatings',JSON.stringify(myRatings));updateStats();renderMediaGrid();showToast('Supprimé');}
+    function exportRatings(){const data={ratings:myRatings,config:config};const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`anirate-${new Date().toISOString().split('T')[0]}.json`;a.click();showToast('Export OK','success');}
     function importRatings(){document.getElementById('importInput').click();}
-    function handleImport(e){const file=e.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=ev=>{try{const data=JSON.parse(ev.target.result);if(data.ratings)myRatings={...myRatings,...data.ratings};if(data.config)config=data.config;localStorage.setItem('mangaRateRatings',JSON.stringify(myRatings));localStorage.setItem('mangaRateConfig',JSON.stringify(config));updateStats();renderMediaGrid();showToast('Import OK','success');}catch{showToast('Fichier invalide','error');}};reader.readAsText(file);e.target.value='';}
+    function handleImport(e){const file=e.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=ev=>{try{const data=JSON.parse(ev.target.result);if(data.ratings)myRatings={...myRatings,...data.ratings};if(data.config)config=data.config;localStorage.setItem('aniRateRatings',JSON.stringify(myRatings));localStorage.setItem('aniRateConfig',JSON.stringify(config));updateStats();renderMediaGrid();showToast('Import OK','success');}catch{showToast('Fichier invalide','error');}};reader.readAsText(file);e.target.value='';}
 
     // Settings
     function openSettings(){
       renderSettingsCriteria('manga');
       renderSettingsCriteria('anime');
-      document.getElementById('mangaAnilistCoef').value=config.manga.anilistCoef;
-      document.getElementById('animeAnilistCoef').value=config.anime.anilistCoef;
       document.getElementById('settingsModal').classList.add('active');
     }
     function closeSettings(){document.getElementById('settingsModal').classList.remove('active');}
@@ -701,9 +678,7 @@
       renderSettingsCriteria(type);
     }
     function saveSettings(){
-      config.manga.anilistCoef=parseFloat(document.getElementById('mangaAnilistCoef').value)||0;
-      config.anime.anilistCoef=parseFloat(document.getElementById('animeAnilistCoef').value)||0;
-      localStorage.setItem('mangaRateConfig',JSON.stringify(config));
+      localStorage.setItem('aniRateConfig',JSON.stringify(config));
       closeSettings();
       showToast('Paramètres sauvegardés','success');
     }

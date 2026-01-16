@@ -310,7 +310,7 @@
 
   <script>
     const ANILIST_CLIENT_ID='34606';
-    let mediaList=[],myRatings={},currentMedia=null,accessToken=null,currentUser=null;
+    let mediaList=[],myRatings={},currentMedia=null,accessToken=null,currentUser=null,userScoreFormat='POINT_10';
     let filters={types:['MANGA','ANIME'],statuses:['COMPLETED','CURRENT','REPEATING'],rated:'all',search:''};
     
     const defaultConfig = {
@@ -392,8 +392,11 @@
     }
     async function loadUserData(){
       try{
-        const r=await fetchAniList(`query{Viewer{id name avatar{medium}}}`);
-        currentUser=r.data.Viewer;updateUI();await loadMediaList();showToast(`Bienvenue ${currentUser.name}!`,'success');
+        const r=await fetchAniList(`query{Viewer{id name avatar{medium} mediaListOptions{scoreFormat}}}`);
+        currentUser=r.data.Viewer;
+        userScoreFormat=currentUser.mediaListOptions?.scoreFormat||'POINT_10';
+        console.log('User score format:', userScoreFormat);
+        updateUI();await loadMediaList();showToast(`Bienvenue ${currentUser.name}!`,'success');
       }catch(e){accessToken=null;localStorage.removeItem('anilistToken');updateUI();showToast('Erreur de connexion','error');}
     }
     async function loadMediaList(){
@@ -429,18 +432,49 @@
       document.getElementById('statAvg').textContent=scores.length?(scores.reduce((a,b)=>a+b,0)/scores.length).toFixed(1):'-';
     }
 
-    // Get effective score: AniRate score if exists, otherwise AniList score
-    // AniList scores are stored as 0-100, we display as 0-10
+    // Convert AniList score to 0-10 scale for display
+    function anilistScoreToTen(score) {
+      if (!score) return null;
+      switch(userScoreFormat) {
+        case 'POINT_100': return score / 10;      // 77 -> 7.7
+        case 'POINT_10_DECIMAL': return score;    // 7.7 -> 7.7
+        case 'POINT_10': return score;            // 8 -> 8
+        case 'POINT_5': return score * 2;         // 4 -> 8
+        case 'POINT_3': return score * 3.33;      // 2 -> 6.66
+        default: return score;
+      }
+    }
+    
+    // Convert 0-10 score to AniList format for saving
+    function tenToAnilistScore(score) {
+      switch(userScoreFormat) {
+        case 'POINT_100': return Math.round(score * 10);  // 7.7 -> 77
+        case 'POINT_10_DECIMAL': return score;            // 7.7 -> 7.7
+        case 'POINT_10': return Math.round(score);        // 7.7 -> 8
+        case 'POINT_5': return Math.round(score / 2);     // 8 -> 4
+        case 'POINT_3': return Math.round(score / 3.33);  // 7 -> 2
+        default: return Math.round(score);
+      }
+    }
+
+    // Get effective score: AniRate score if exists, otherwise AniList score (converted to /10)
     function getEffectiveScore(mediaId, anilistScore) {
       const rating = myRatings[mediaId];
       if (rating) return { score: rating.finalScore, source: 'anirate' };
-      if (anilistScore) return { score: anilistScore / 10, source: 'anilist' };
+      if (anilistScore) return { score: anilistScoreToTen(anilistScore), source: 'anilist' };
       return { score: null, source: null };
     }
 
     // Check if media has any rating (AniRate OR AniList)
     function hasAnyRating(mediaId, anilistScore) {
       return myRatings[mediaId] || (anilistScore && anilistScore > 0);
+    }
+    
+    // Format AniList score for display
+    function formatAnilistScore(score) {
+      if (!score) return null;
+      const converted = anilistScoreToTen(score);
+      return converted % 1 === 0 ? converted : converted.toFixed(1);
     }
 
     function getFilteredMedia(){
@@ -477,7 +511,8 @@
         const t=e.media.title.english||e.media.title.romaji;
         const r=myRatings[e.mediaId];
         const eff=getEffectiveScore(e.mediaId,e.anilistScore);
-        const aniScoreBadge=(e.anilistScore && e.anilistScore>0)?`<div class="media-anilist-score">AL:${(e.anilistScore/10)}</div>`:'';
+        const aniScoreDisplay=formatAnilistScore(e.anilistScore);
+        const aniScoreBadge=aniScoreDisplay?`<div class="media-anilist-score">AL:${aniScoreDisplay}</div>`:'';
         const scoreDisplay=eff.score?`<span class="media-score" style="${eff.source==='anilist'?'color:var(--anilist);opacity:0.7':''}">${eff.source==='anilist'?eff.score:eff.score.toFixed(1)}</span>`:'';
         return`<div class="media-card ${r?'rated':''}" onclick="openRatingModal(${e.mediaId})"><span class="media-type-badge ${e.type.toLowerCase()}">${e.type}</span>${aniScoreBadge}<img class="media-cover" src="${e.media.coverImage.large}" alt="${t}" loading="lazy"><div class="media-info"><div class="media-title">${t}</div><div class="media-meta"><span class="media-status">${labels[e.status]||e.status}</span>${scoreDisplay}</div></div></div>`;
       }).join('');
@@ -501,9 +536,10 @@
       
       // AniList score badge
       const aniBadge=document.getElementById('modalAnilistScore');
-      if(e.anilistScore && e.anilistScore>0){
+      const aniScoreDisplay=formatAnilistScore(e.anilistScore);
+      if(aniScoreDisplay){
         aniBadge.style.display='inline';
-        aniBadge.textContent=`AniList: ${(e.anilistScore/10)}`;
+        aniBadge.textContent=`AniList: ${aniScoreDisplay}`;
       }else{
         aniBadge.style.display='none';
       }
@@ -582,10 +618,10 @@
     async function syncToAniList(){
       if(!currentMedia||!accessToken)return;
       const finalScore=parseFloat(document.getElementById('finalScore').textContent);
-      const anilistScore=Math.round(finalScore*10); // 7.7 -> 77
-      console.log('Syncing to AniList:', finalScore, '->', anilistScore);
+      const anilistScore=tenToAnilistScore(finalScore);
+      console.log('Syncing to AniList:', finalScore, '->', anilistScore, '(format:', userScoreFormat, ')');
       try{
-        await fetchAniList(`mutation($mediaId:Int,$score:Int){SaveMediaListEntry(mediaId:$mediaId,score:$score){id score}}`,{mediaId:currentMedia.mediaId,score:anilistScore});
+        await fetchAniList(`mutation($mediaId:Int,$score:Float){SaveMediaListEntry(mediaId:$mediaId,score:$score){id score}}`,{mediaId:currentMedia.mediaId,score:anilistScore});
         const entry=mediaList.find(m=>m.mediaId===currentMedia.mediaId);
         if(entry)entry.anilistScore=anilistScore;
         showToast(`AniList ← ${finalScore.toFixed(1)}/10`,'success');
@@ -630,10 +666,10 @@
     async function syncRatingToAniList(mediaId){
       const r=myRatings[mediaId];
       if(!r||!accessToken)return;
-      const anilistScore=Math.round(r.finalScore*10);
-      console.log('Syncing rating to AniList:', r.finalScore, '->', anilistScore);
+      const anilistScore=tenToAnilistScore(r.finalScore);
+      console.log('Syncing rating to AniList:', r.finalScore, '->', anilistScore, '(format:', userScoreFormat, ')');
       try{
-        await fetchAniList(`mutation($mediaId:Int,$score:Int){SaveMediaListEntry(mediaId:$mediaId,score:$score){id score}}`,{mediaId:parseInt(mediaId),score:anilistScore});
+        await fetchAniList(`mutation($mediaId:Int,$score:Float){SaveMediaListEntry(mediaId:$mediaId,score:$score){id score}}`,{mediaId:parseInt(mediaId),score:anilistScore});
         const entry=mediaList.find(m=>m.mediaId.toString()===mediaId.toString());
         if(entry)entry.anilistScore=anilistScore;
         renderMediaGrid();
@@ -648,7 +684,7 @@
       section.style.display='block';
       tbody.innerHTML=ratings.map(r=>{
         const entry=mediaList.find(m=>m.mediaId.toString()===r.mediaId.toString());
-        const aniScore=(entry?.anilistScore && entry.anilistScore>0)?(entry.anilistScore/10):'-';
+        const aniScore=entry?.anilistScore?formatAnilistScore(entry.anilistScore):'-';
         return`<tr><td><div class="rating-row-title"><img class="rating-row-cover" src="${r.cover}" alt=""><span>${r.title}</span></div></td><td><span class="modal-badge type ${r.type.toLowerCase()}">${r.type}</span></td><td style="color:var(--anilist)">${aniScore}</td><td><span class="rating-cell-score">${r.finalScore.toFixed(1)}</span></td><td><div class="rating-actions"><button class="rating-action-btn anilist" onclick="syncRatingToAniList(${r.mediaId})" title="Sync AniList">🔄</button><button class="rating-action-btn delete" onclick="deleteRating(${r.mediaId})" title="Supprimer">🗑️</button></div></td></tr>`;
       }).join('');
     }
